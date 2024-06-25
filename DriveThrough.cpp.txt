@@ -1,0 +1,55 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    // Initialize vectors to store data
+    vector<int> hour;
+    vector<int> minute;
+    vector<int> count;
+
+    // Open and read the csv file
+    ifstream infile("counts.csv");
+    string line;
+    getline(infile, line); // Skip the header row
+    while (getline(infile, line)) {
+        // Extract data from each line
+        int h, m, c;
+        char colon;
+        stringstream ss(line);
+        ss >> h >> colon >> m >> c;
+        hour.push_back(h);
+        minute.push_back(m);
+        count.push_back(c);
+    }
+
+    // Calculate average count per 10-minute interval
+    int total_count = accumulate(count.begin(), count.end(), 0);
+    int total_time = (max_element(hour.begin(), hour.end())[0] - min_element(hour.begin(), hour.end())[0]) * 60 + (max_element(minute.begin(), minute.end())[0] - min_element(minute.begin(), minute.end())[0]);
+    double average_count = static_cast<double>(total_count) / (total_time / 10.0);
+
+    // Print average count
+    cout << "Average count per 10-minute interval: " << fixed << setprecision(2) << average_count << endl;
+
+    // Get three highest counts
+    vector<int> sorted_counts = count;
+    sort(sorted_counts.rbegin(), sorted_counts.rend());
+    cout << "Three highest counts observed:" << endl;
+    for (int i = 0; i < 3; i++) {
+        int max_count = sorted_counts[i];
+        int max_index = find(count.begin(), count.end(), max_count) - count.begin();
+        cout << hour[max_index] << ":" << setw(2) << setfill('0') << minute[max_index] << " - " << max_count << " cars" << endl;
+    }
+
+    return 0;
+}
+
+
+
+
+Note that this code uses the STL algorithms accumulate, 
+max_element, sort, and find, 
+which may require including the header file <numeric>, <algorithm>, and <iomanip>, respectively.
